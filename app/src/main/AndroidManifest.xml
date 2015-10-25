@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.github.buchandersenn.android_permission_manager.demo">
+
+    <!-- Note that all required permissions are declared here in the Android manifest.
+     On Android M and above, use of these permissions is only requested at run time. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <application
+            android:allowBackup="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AppCompat.Light">
+        <activity
+                android:name=".MainActivity"
+                android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Activity that only displays the camera preview. -->
+        <activity
+                android:name=".camera.CameraPreviewActivity"
+                android:exported="false"/>
+
+    </application>
+
+</manifest>
