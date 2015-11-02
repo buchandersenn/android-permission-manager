@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PermissionManager Demo</string>
-    <string name="intro">This sample shows a basic implementation for requesting permissions at runtime.\nClick the button below to request the Camera permission and open a full-screen camera preview.</string>
+
+    <string name="camera_intro">This sample shows a basic implementation for requesting permissions at runtime.\nClick the button below to request the Camera permission and open a full-screen camera preview.</string>
     <string name="show_camera">Show camera preview</string>
     <string name="camera_unavailable"><b>Camera could not be opened.</b>\nThis occurs when the camera is not available (for example it is already in use) or if the system has denied access (for example when camera access has been disabled).</string>
+
+    <string name="contacts_intro">The bottom half of the screen is a fragment, containing its own PermissionManager. The fragment is replaced once permission is given.</string>
+    <string name="show_contacts">Show a contact</string>
+    <string name="contacts_rationale">The app requires permission to access the contacts in order to perform the requested operation</string>
+    <string name="contacts_result">Total number of contacts: %1$,d\nFirst contact:<b>%2$s</b></string>
+    <string name="contacts_empty">Show a contact</string>
+
 </resources>
