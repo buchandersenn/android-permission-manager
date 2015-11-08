@@ -17,19 +17,19 @@ import com.github.buchandersenn.android_permission_manager.demo.R;
 import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.all;
 import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.setPermissionDeniedViewEnabled;
 import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.setPermissionDeniedViewVisibility;
-import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.setPermissionShowRationaleViewVisibility;
 import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.showPermissionGrantedFragment;
+import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.showPermissionRationaleFragment;
 
-public class ContactFragment extends Fragment implements FragmentCompat.OnRequestPermissionsResultCallback {
+public class ContactRequestFragment extends Fragment implements FragmentCompat.OnRequestPermissionsResultCallback {
     private final PermissionManager permissionManager = PermissionManager.create(this);
 
     private Button contactsButton;
-    private View contactsRationaleView;
+    private View contactsDeniedView;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_contacts, container, false);
+        return inflater.inflate(R.layout.fragment_contacts_request, container, false);
     }
 
     @Override
@@ -41,8 +41,7 @@ public class ContactFragment extends Fragment implements FragmentCompat.OnReques
                 showContacts();
             }
         });
-
-        contactsRationaleView = view.findViewById(R.id.contacts_rationale);
+        contactsDeniedView = view.findViewById(R.id.contacts_permission_denied);
     }
 
     @Override
@@ -53,9 +52,9 @@ public class ContactFragment extends Fragment implements FragmentCompat.OnReques
     private void showContacts() {
         permissionManager.with(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
                 .onPermissionGranted(showPermissionGrantedFragment(getFragmentManager(), R.id.fragment_container, new ContactResultFragment(), false))
-                .onPermissionShowRationale(setPermissionShowRationaleViewVisibility(contactsRationaleView, View.VISIBLE))
+                .onPermissionShowRationale(showPermissionRationaleFragment(getFragmentManager(), R.id.fragment_container, new ContactRationaleFragment(), false))
                 .onPermissionDenied(all(
-                        setPermissionDeniedViewVisibility(contactsRationaleView, View.INVISIBLE),
+                        setPermissionDeniedViewVisibility(contactsDeniedView, View.VISIBLE),
                         setPermissionDeniedViewEnabled(contactsButton, false)))
                 .execute();
     }

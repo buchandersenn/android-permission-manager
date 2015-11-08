@@ -6,12 +6,11 @@ import com.github.buchandersenn.android_permission_manager.callbacks.OnPermissio
 import com.github.buchandersenn.android_permission_manager.callbacks.OnPermissionDeniedCallback;
 import com.github.buchandersenn.android_permission_manager.callbacks.OnPermissionGrantedCallback;
 import com.github.buchandersenn.android_permission_manager.callbacks.OnPermissionShowRationaleCallback;
-import com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbackDelegate;
 
 public class PermissionRequestBuilder {
     private final @NonNull PermissionManager manager;
     private final @NonNull String[] permissions;
-    private int requestCode;
+    private int requestCode = -1;
 
     private OnPermissionGrantedCallback grantedCallback;
     private OnPermissionDeniedCallback deniedCallback;
@@ -50,12 +49,12 @@ public class PermissionRequestBuilder {
     }
 
     public void execute() {
-        PermissionCallbackDelegate callback = new PermissionCallbackDelegate(grantedCallback, deniedCallback, showRationaleCallback);
-        manager.execute(requestCode, permissions, callback);
+        PermissionRequest permissionRequest = new PermissionRequest(manager, permissions, requestCode, grantedCallback, deniedCallback, showRationaleCallback);
+        manager.execute(permissionRequest);
     }
 
     public void check() {
-        PermissionCallbackDelegate callback = new PermissionCallbackDelegate(grantedCallback, deniedCallback, showRationaleCallback);
-        manager.check(permissions, callback);
+        PermissionRequest permissionRequest = new PermissionRequest(manager, permissions, requestCode, grantedCallback, deniedCallback, showRationaleCallback);
+        manager.check(permissionRequest);
     }
 }

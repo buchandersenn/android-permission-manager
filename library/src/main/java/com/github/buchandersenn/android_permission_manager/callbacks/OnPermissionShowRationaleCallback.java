@@ -1,5 +1,7 @@
 package com.github.buchandersenn.android_permission_manager.callbacks;
 
+import com.github.buchandersenn.android_permission_manager.PermissionRequest;
+
 public interface OnPermissionShowRationaleCallback {
-    void onPermissionShowRationale(int requestCode, String[] permissions);
+    void onPermissionShowRationale(PermissionRequest permissionRequest);
 }

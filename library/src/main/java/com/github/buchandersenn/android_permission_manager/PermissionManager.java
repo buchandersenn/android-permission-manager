@@ -7,12 +7,11 @@ import android.support.v13.app.FragmentCompat;
 import android.support.v4.app.ActivityCompat;
 import android.util.SparseArray;
 
-import com.github.buchandersenn.android_permission_manager.callbacks.OnPermissionCallback;
-
-import java.util.Arrays;
-
 public abstract class PermissionManager {
-    private SparseArray<OnPermissionCallback> callbacks = new SparseArray<>();
+    private static final int MAX_REQUEST_CODE = 255;
+
+    private final Object requestCodeLock = new Object();
+    private final SparseArray<PermissionRequest> requests = new SparseArray<>();
 
     public static PermissionManager create(Activity activity) {
         return new ActivityPermissionManager(activity);
@@ -31,59 +30,85 @@ public abstract class PermissionManager {
     }
 
     public boolean handlePermissionResult(int requestCode, @NonNull int[] grantResults) {
-        OnPermissionCallback callback = callbacks.get(requestCode);
-        if (callback == null) {
+        PermissionRequest request = requests.get(requestCode);
+        if (request == null) {
             return false;
         }
 
-        callbacks.delete(requestCode);
+        requests.delete(requestCode);
 
         if (PermissionUtil.verifyPermissionResults(grantResults)) {
-            callback.onPermissionGranted();
+            request.fireOnPermissionGrantedCallback();
         } else {
-            callback.onPermissionDenied();
+            request.fireOnPermissionDeniedCallback();
         }
 
         return true;
     }
 
-    public abstract void requestPermission(int requestCode, String[] permissions);
+    protected void check(PermissionRequest permissionRequest) {
+        if (checkPermissions(permissionRequest.getPermissions())) {
+            permissionRequest.fireOnPermissionGrantedCallback();
+        } else {
+            permissionRequest.fireOnPermissionDeniedCallback();
+        }
+    }
 
-    protected void execute(int requestCode, String[] permissions, OnPermissionCallback callback) {
-        if (checkPermissions(permissions)) {
-            callback.onPermissionGranted();
+    protected void execute(PermissionRequest permissionRequest) {
+        if (checkPermissions(permissionRequest.getPermissions())) {
+            permissionRequest.fireOnPermissionGrantedCallback();
             return;
         }
 
-        // If no request code was supplied by the PermissionRequestBuilder then
-        // calculate one...
-        if (requestCode == 0) {
-            requestCode = Arrays.hashCode(permissions);
-        }
-
-        // Register the callback with the PermissionManager before either showing the rationale,
-        // and hopefully requesting the permission once the user agrees with the rationale,
-        // or just requesting the permission at once. The callback is then used by
-        // PermissionManager.handlePermissionResult() once the user replies to the request...
-        callbacks.put(requestCode, callback);
-
-        if (shouldShowPermissionRationale(permissions)) {
-            callback.onPermissionShowRationale(requestCode, permissions);
+        if (shouldShowPermissionRationale(permissionRequest.getPermissions())) {
+            permissionRequest.fireOnPermissionShowRationaleCallback();
         } else {
-            requestPermission(requestCode, permissions);
+            requestPermission(permissionRequest);
         }
     }
 
-    protected void check(String[] permissions, OnPermissionCallback callback) {
-        if (checkPermissions(permissions)) {
-            callback.onPermissionGranted();
-        } else {
-            callback.onPermissionDenied();
+    protected void requestPermission(PermissionRequest permissionRequest) {
+        // Register the request with the PermissionManager before requesting the permission(s).
+        // The request map is used by PermissionManager.handlePermissionResult()
+        // once the user replies to the request...
+        int requestCode;
+        synchronized (requestCodeLock) {
+            // If no request code was supplied by the PermissionRequestBuilder then
+            // calculate one...
+            int userSuppliedRequestCode = permissionRequest.getRequestCode();
+            if (userSuppliedRequestCode == -1) {
+                requestCode = calculateRequestCode();
+                requests.put(requestCode, permissionRequest);
+            } else if (requests.get(userSuppliedRequestCode) == null) {
+                requestCode = userSuppliedRequestCode;
+                requests.put(requestCode, permissionRequest);
+            } else {
+                throw new IllegalStateException("The requestCode " + userSuppliedRequestCode + " is already in use");
+            }
         }
+
+        requestPermission(requestCode, permissionRequest.getPermissions());
     }
 
+    protected abstract void requestPermission(int requestCode, String[] permissions);
     protected abstract boolean checkPermissions(String[] permissions);
     protected abstract boolean shouldShowPermissionRationale(String[] permissions);
+
+    /**
+     * The requestCode must be between 0 and 255. This method calculates a new request code by
+     * the simple method of looping through all the possible codes and returning the first one
+     * that is not in use.
+     * @return an unused request code
+     */
+    private int calculateRequestCode() {
+        for (int i = 0; i < MAX_REQUEST_CODE; i++) {
+            if (requests.get(i) == null) {
+                return i;
+            }
+        }
+
+        throw new IllegalStateException("Unable to calculate request code. Try setting a request code manually by calling PermissionRequestBuilder#usingRequestCode(int)");
+    }
 
     private static class ActivityPermissionManager extends PermissionManager {
         private final @NonNull Activity activity;

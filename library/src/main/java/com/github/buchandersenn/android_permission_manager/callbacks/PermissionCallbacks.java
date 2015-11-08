@@ -6,7 +6,6 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -15,6 +14,7 @@ import android.support.design.widget.Snackbar;
 import android.view.View;
 
 import com.github.buchandersenn.android_permission_manager.PermissionManager;
+import com.github.buchandersenn.android_permission_manager.PermissionRequest;
 
 public class PermissionCallbacks {
 
@@ -47,15 +47,6 @@ public class PermissionCallbacks {
         };
     }
 
-    public static  OnPermissionGrantedCallback startPermissionGrantedActivity(final Context context, final Intent activityIntent) {
-        return new OnPermissionGrantedCallback() {
-            @Override
-            public void onPermissionGranted() {
-                context.startActivity(activityIntent);
-            }
-        };
-    }
-
     public static  OnPermissionGrantedCallback showPermissionGrantedFragment(final FragmentManager fragmentManager, @IdRes final int viewId, final Fragment fragment, final boolean addToBackStack) {
         return new OnPermissionGrantedCallback() {
             @Override
@@ -67,6 +58,15 @@ public class PermissionCallbacks {
                     fragmentTransaction.addToBackStack(null);
                 }
                 fragmentTransaction.commit();
+            }
+        };
+    }
+
+    public static  OnPermissionGrantedCallback startPermissionGrantedActivity(final Context context, final Intent activityIntent) {
+        return new OnPermissionGrantedCallback() {
+            @Override
+            public void onPermissionGranted() {
+                context.startActivity(activityIntent);
             }
         };
     }
@@ -137,12 +137,21 @@ public class PermissionCallbacks {
         };
     }
 
+    public static  OnPermissionDeniedCallback startPermissionDeniedActivity(final Context context, final Intent activityIntent) {
+        return new OnPermissionDeniedCallback() {
+            @Override
+            public void onPermissionDenied() {
+                context.startActivity(activityIntent);
+            }
+        };
+    }
+
     public static OnPermissionShowRationaleCallback all(final OnPermissionShowRationaleCallback... showRationaleCallbacks) {
         return new OnPermissionShowRationaleCallback() {
             @Override
-            public void onPermissionShowRationale(int requestCode, String[] permissions) {
+            public void onPermissionShowRationale(PermissionRequest permissionRequest) {
                 for (OnPermissionShowRationaleCallback callback : showRationaleCallbacks) {
-                    callback.onPermissionShowRationale(requestCode, permissions);
+                    callback.onPermissionShowRationale(permissionRequest);
                 }
             }
         };
@@ -151,7 +160,7 @@ public class PermissionCallbacks {
     public static OnPermissionShowRationaleCallback setPermissionShowRationaleViewVisibility(@NonNull final View view, final int visibility) {
         return new OnPermissionShowRationaleCallback() {
             @Override
-            public void onPermissionShowRationale(int requestCode, String[] permissions) {
+            public void onPermissionShowRationale(PermissionRequest permissionRequest) {
                 view.setVisibility(visibility);
             }
         };
@@ -160,7 +169,7 @@ public class PermissionCallbacks {
     public static OnPermissionShowRationaleCallback setPermissionShowRationaleViewEnabled(@NonNull final View view, final boolean enabled) {
         return new OnPermissionShowRationaleCallback() {
             @Override
-            public void onPermissionShowRationale(int requestCode, String[] permissions) {
+            public void onPermissionShowRationale(PermissionRequest permissionRequest) {
                 view.setEnabled(enabled);
             }
         };
@@ -169,9 +178,9 @@ public class PermissionCallbacks {
     public static OnPermissionShowRationaleCallback showPermissionShowRationaleSnackbar(@NonNull final PermissionManager permissionManager, @NonNull final View view, final CharSequence text, final CharSequence buttonText) {
         return new OnPermissionShowRationaleCallback() {
             @Override
-            public void onPermissionShowRationale(final int requestCode, final String[] permissions) {
+            public void onPermissionShowRationale(PermissionRequest permissionRequest) {
                 Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(buttonText, new RationaleButtonClickListener(permissionManager, requestCode, permissions))
+                        .setAction(buttonText, new RationaleButtonClickListener(permissionRequest))
                         .show();
             }
         };
@@ -180,9 +189,9 @@ public class PermissionCallbacks {
     public static OnPermissionShowRationaleCallback showPermissionShowRationaleSnackbar(@NonNull final PermissionManager permissionManager, @NonNull final View view, @StringRes final int textResId, @StringRes final int buttonTextResId) {
         return new OnPermissionShowRationaleCallback() {
             @Override
-            public void onPermissionShowRationale(final int requestCode, final String[] permissions) {
+            public void onPermissionShowRationale(PermissionRequest permissionRequest) {
                 Snackbar.make(view, textResId, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(buttonTextResId, new RationaleButtonClickListener(permissionManager, requestCode, permissions))
+                        .setAction(buttonTextResId, new RationaleButtonClickListener(permissionRequest))
                         .show();
             }
         };
@@ -191,11 +200,7 @@ public class PermissionCallbacks {
     public static  OnPermissionShowRationaleCallback showPermissionRationaleFragment(final FragmentManager fragmentManager, @IdRes final int viewId, final Fragment fragment, final boolean addToBackStack) {
         return new OnPermissionShowRationaleCallback() {
             @Override
-            public void onPermissionShowRationale(int requestCode, String[] permissions) {
-                Bundle arguments = fragment.getArguments();
-                arguments.putInt("requestCode", requestCode);
-                arguments.putStringArray("permissions", permissions);
-
+            public void onPermissionShowRationale(PermissionRequest permissionRequest) {
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 fragmentTransaction.replace(viewId, fragment);
@@ -203,6 +208,15 @@ public class PermissionCallbacks {
                     fragmentTransaction.addToBackStack(null);
                 }
                 fragmentTransaction.commit();
+            }
+        };
+    }
+
+    public static  OnPermissionShowRationaleCallback startPermissionShowRationaleActivity(final Context context, final Intent activityIntent) {
+        return new OnPermissionShowRationaleCallback() {
+            @Override
+            public void onPermissionShowRationale(PermissionRequest permissionRequest) {
+                context.startActivity(activityIntent);
             }
         };
     }
@@ -221,19 +235,15 @@ public class PermissionCallbacks {
     }
 
     private static class RationaleButtonClickListener implements View.OnClickListener {
-        private final PermissionManager permissionManager;
-        private final int requestCode;
-        private final String[] permissions;
+        private final PermissionRequest permissionRequest;
 
-        public RationaleButtonClickListener(PermissionManager permissionManager, int requestCode, String[] permissions) {
-            this.permissionManager = permissionManager;
-            this.requestCode = requestCode;
-            this.permissions = permissions;
+        public RationaleButtonClickListener(PermissionRequest permissionRequest) {
+            this.permissionRequest = permissionRequest;
         }
 
         @Override
         public void onClick(View v) {
-            permissionManager.requestPermission(requestCode, permissions);
+            permissionRequest.acceptPermissionRationale();
         }
     }
 }
