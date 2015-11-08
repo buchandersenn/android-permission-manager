@@ -48,9 +48,9 @@ public class PermissionRequestBuilder {
         return this;
     }
 
-    public void execute() {
+    public void request() {
         PermissionRequest permissionRequest = new PermissionRequest(manager, permissions, requestCode, grantedCallback, deniedCallback, showRationaleCallback);
-        manager.execute(permissionRequest);
+        manager.request(permissionRequest);
     }
 
     public void check() {

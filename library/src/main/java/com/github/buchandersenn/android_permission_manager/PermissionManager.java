@@ -54,7 +54,7 @@ public abstract class PermissionManager {
         }
     }
 
-    protected void execute(PermissionRequest permissionRequest) {
+    protected void request(PermissionRequest permissionRequest) {
         if (checkPermissions(permissionRequest.getPermissions())) {
             permissionRequest.fireOnPermissionGrantedCallback();
             return;

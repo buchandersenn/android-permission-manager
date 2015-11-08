@@ -14,7 +14,7 @@ import android.widget.Button;
 import com.github.buchandersenn.android_permission_manager.PermissionManager;
 import com.github.buchandersenn.android_permission_manager.demo.R;
 
-import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.all;
+import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.doAll;
 import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.setPermissionDeniedViewEnabled;
 import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.setPermissionDeniedViewVisibility;
 import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.showPermissionGrantedFragment;
@@ -53,9 +53,9 @@ public class ContactRequestFragment extends Fragment implements FragmentCompat.O
         permissionManager.with(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
                 .onPermissionGranted(showPermissionGrantedFragment(getFragmentManager(), R.id.fragment_container, new ContactResultFragment(), false))
                 .onPermissionShowRationale(showPermissionRationaleFragment(getFragmentManager(), R.id.fragment_container, new ContactRationaleFragment(), false))
-                .onPermissionDenied(all(
+                .onPermissionDenied(doAll(
                         setPermissionDeniedViewVisibility(contactsDeniedView, View.VISIBLE),
                         setPermissionDeniedViewEnabled(contactsButton, false)))
-                .execute();
+                .request();
     }
 }

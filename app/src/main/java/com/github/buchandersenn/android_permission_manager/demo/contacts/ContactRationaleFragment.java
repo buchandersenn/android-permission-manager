@@ -71,6 +71,6 @@ public class ContactRationaleFragment extends Fragment implements FragmentCompat
                     permissionRequest.acceptPermissionRationale();
                 }
             })
-            .execute();
+            .request();
     }
 }

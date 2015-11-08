@@ -18,7 +18,7 @@ import com.github.buchandersenn.android_permission_manager.PermissionRequest;
 
 public class PermissionCallbacks {
 
-    public static OnPermissionGrantedCallback all(final OnPermissionGrantedCallback... grantedCallbacks) {
+    public static OnPermissionGrantedCallback doAll(final OnPermissionGrantedCallback... grantedCallbacks) {
         return new OnPermissionGrantedCallback() {
             @Override
             public void onPermissionGranted() {
@@ -71,7 +71,7 @@ public class PermissionCallbacks {
         };
     }
 
-    public static OnPermissionDeniedCallback all(final OnPermissionDeniedCallback... deniedCallbacks) {
+    public static OnPermissionDeniedCallback doAll(final OnPermissionDeniedCallback... deniedCallbacks) {
         return new OnPermissionDeniedCallback() {
             @Override
             public void onPermissionDenied() {
@@ -146,7 +146,7 @@ public class PermissionCallbacks {
         };
     }
 
-    public static OnPermissionShowRationaleCallback all(final OnPermissionShowRationaleCallback... showRationaleCallbacks) {
+    public static OnPermissionShowRationaleCallback doAll(final OnPermissionShowRationaleCallback... showRationaleCallbacks) {
         return new OnPermissionShowRationaleCallback() {
             @Override
             public void onPermissionShowRationale(PermissionRequest permissionRequest) {
