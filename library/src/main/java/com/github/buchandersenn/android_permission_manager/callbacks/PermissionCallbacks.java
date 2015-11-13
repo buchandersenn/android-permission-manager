@@ -13,7 +13,6 @@ import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 
-import com.github.buchandersenn.android_permission_manager.PermissionManager;
 import com.github.buchandersenn.android_permission_manager.PermissionRequest;
 
 public class PermissionCallbacks {
@@ -175,7 +174,7 @@ public class PermissionCallbacks {
         };
     }
 
-    public static OnPermissionShowRationaleCallback showPermissionShowRationaleSnackbar(@NonNull final PermissionManager permissionManager, @NonNull final View view, final CharSequence text, final CharSequence buttonText) {
+    public static OnPermissionShowRationaleCallback showPermissionShowRationaleSnackbar(@NonNull final View view, final CharSequence text, final CharSequence buttonText) {
         return new OnPermissionShowRationaleCallback() {
             @Override
             public void onPermissionShowRationale(PermissionRequest permissionRequest) {
@@ -186,7 +185,7 @@ public class PermissionCallbacks {
         };
     }
 
-    public static OnPermissionShowRationaleCallback showPermissionShowRationaleSnackbar(@NonNull final PermissionManager permissionManager, @NonNull final View view, @StringRes final int textResId, @StringRes final int buttonTextResId) {
+    public static OnPermissionShowRationaleCallback showPermissionShowRationaleSnackbar(@NonNull final View view, @StringRes final int textResId, @StringRes final int buttonTextResId) {
         return new OnPermissionShowRationaleCallback() {
             @Override
             public void onPermissionShowRationale(PermissionRequest permissionRequest) {
