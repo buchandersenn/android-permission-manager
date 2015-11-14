@@ -118,7 +118,7 @@ with the following few lines of code:
 The library is not (yet) available in jCenter, so you'll need to clone the GIT repository and 
 include the library in your project manually.
 
-# Documentation
+# Usage
 
 ## Setup 
 
@@ -189,7 +189,21 @@ invoked if the app should show a rationale before asking the user to grant the p
 If neither of these conditions are met, then the permissionManager requests the permission and the 
 onPermissionGranted/onPermissionDenied callbacks called once the user has answered.
 
-The callbacks are simple single methods interfaces:
+Alternatively, it is also possible to just check for the permission 'silently':
+
+    permissionManager.with(...)
+            .onPermissionGranted(new OnPermissionGrantedCallback() {...})
+            .onPermissionDenied(new OnPermissionDeniedCallback() {...})
+            .check();
+
+The check() method will not ask the user for permission if it is not available, thus the 
+onPermissionShowRationale callback is irrelevant. It will always invoke either the
+onPermissionGranted or the onPermissionDenied callback at once.
+
+## Callback interfaces
+
+The callbacks are simple single methods interfaces - with the exception of the aggregate 
+OnPermissionCallback interface:
 
     public interface OnPermissionGrantedCallback {
         void onPermissionGranted();
@@ -203,44 +217,73 @@ The callbacks are simple single methods interfaces:
         void onPermissionShowRationale(PermissionRequest permissionRequest);
     }
 
-The PermissionRequest instance provided by the onPermissionShowRationale callback contains a 
-single public method letting the callback handler accept the rationale. When the rationale
-is accepted the permission manager library automatically tries to request the permission again:
-
-    void onPermissionShowRationale(PermissionRequest permissionRequest) {
-        ...
-        permissionRequest.acceptPermissionRationale();
+    public interface OnPermissionCallback extends 
+        OnPermissionGrantedCallback, 
+        OnPermissionDeniedCallback, 
+        OnPermissionShowRationaleCallback {
     }
 
-In practice, an app will typically show some kind of view to the user in the 
-onPermissionShowRationale callback, perhaps in the form of a Snackbar. The view should include a 
-way for the user to indicate acceptance of the rationale, in which case you can safely call
-the acceptPermissionRationale() method and expect the user to grant the permission when prompted. 
-This will result in the permission granted callback to be invoked.
+When the onPermissionShowRationale callback is called, the app is expected to show some kind of 
+rationale to the user, perhaps in the form of a Snackbar. The rationale should include 
+a way for the user to indicate acceptance of the rationale, typically in the form of a
+"OK" og "GOT IT" button. 
 
-## Common callbacks
+The PermissionRequest instance provided by the onPermissionShowRationale callback contains a 
+single public method. This method lets the permission manager know that the user has accepted the 
+rationale. If the rationale is accepted then the permission manager automatically tries to request 
+the permission again. 
+           
+    void onPermissionShowRationale(PermissionRequest permissionRequest) {
+        ...
+        
+        okButton.OnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                permissionRequest.acceptPermissionRationale();
+            }
+        });
+    }
 
-Some callbacks are common across a wide range of apps: launching a new activity 
+When the user answers the permission prompt, the onPermissionGranted or onPermissionDenied 
+callbacks are called, just as if the rationale had not been shown.
+
+## Common callbacks handlers
+
+Some callbacks handlers are common across a wide range of apps: launching a new activity 
 when a permission is granted, using a snackbar to show the permission rationale or
-replacing a fragment if the permission request is denied.
+showing a fragment if the permission request is denied.
 
 To facilitate these common callback types the library contains a collection of common callback
-implementations in the class PermissionCallbacks. By static importing these the code can be 
-streamlined further, as shown in the initial example:
+implementations in the class PermissionCallbacks. Each callback handler is wrapped in an 
+appropriately named factory method. By static importing these methods the code can 
+be streamlined further, as shown in the initial example:
 
     import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.showPermissionDeniedSnackbar;
     import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.showPermissionShowRationaleSnackbar;
     import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.startPermissionGrantedActivity;
 
+    ...
+    
     permissionManager.with(Manifest.permission.CAMERA)
             .onPermissionGranted(startPermissionGrantedActivity(this, new Intent(this, CameraPreviewActivity.class)))
             .onPermissionDenied(showPermissionDeniedSnackbar(mLayout, "Camera permission request was denied.", "SETTINGS"))
             .onPermissionShowRationale(showPermissionShowRationaleSnackbar(mLayout, "Camera access is required to display the camera preview.", "OK"))
             .request();
 
+It is even possible to chain callback handlers together using the doAll() callback handler 
+as a wrapper. Here's an example from the sample app:
+
+    permissionManager.with(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
+            .onPermissionGranted(showPermissionGrantedFragment(getFragmentManager(), R.id.fragment_container, new ContactResultFragment(), false))
+            .onPermissionShowRationale(showPermissionRationaleFragment(getFragmentManager(), R.id.fragment_container, new ContactRationaleFragment(), false))
+            .onPermissionDenied(doAll(
+                    setPermissionDeniedViewVisibility(contactsDeniedView, View.VISIBLE),
+                    setPermissionDeniedViewEnabled(contactsButton, false)))
+            .request();
+
 You are free to use the same technique to bundle your own callbacks in a similar 
-MyFavoriteCallbacks class, or to contact me if you think some important callbacks are missing
-from the library.
+MyFavoriteCallbacks class, or to contact me if you think some important common callback handlers 
+are missing from the library.
 
 # Author
 
