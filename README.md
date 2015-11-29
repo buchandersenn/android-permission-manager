@@ -31,20 +31,22 @@ check-permission/show-rationale/request-permission/evaluate-result/perform-opera
 behind the scenes. Using the PermissionManager and some of the helper methods included 
 in the library, you can achieve all of the above with the following few lines of code:
 
-    private final PermissionManager permissionManager = PermissionManager.create(this);
+```java
+private final PermissionManager permissionManager = PermissionManager.create(this);
 
-    private void showCameraPreview() {
-        permissionManager.with(Manifest.permission.CAMERA)
-                .onPermissionGranted(startPermissionGrantedActivity(this, new Intent(this, CameraPreviewActivity.class)))
-                .onPermissionDenied(showPermissionDeniedSnackbar(mLayout, "Camera permission request was denied.", "SETTINGS"))
-                .onPermissionShowRationale(showPermissionShowRationaleSnackbar(mLayout, "Camera access is required to display the camera preview.", "OK"))
-                .request();
-    }
+private void showCameraPreview() {
+    permissionManager.with(Manifest.permission.CAMERA)
+            .onPermissionGranted(startPermissionGrantedActivity(this, new Intent(this, CameraPreviewActivity.class)))
+            .onPermissionDenied(showPermissionDeniedSnackbar(mLayout, "Camera permission request was denied.", "SETTINGS"))
+            .onPermissionShowRationale(showPermissionShowRationaleSnackbar(mLayout, "Camera access is required to display the camera preview.", "OK"))
+            .request();
+}
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        permissionManager.handlePermissionResult(requestCode, grantResults);
-    }
+@Override
+public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    permissionManager.handlePermissionResult(requestCode, grantResults);
+}
+```
 
 The library not only reduces the amount of code by about half, but also improves 
 the readability quite a bit.
@@ -55,21 +57,25 @@ the readability quite a bit.
 
 The easiest way to add the required dependency is by using Gradle:
 
-    repositories {
-        jcenter()
-    }
-    
-    dependencies {
-        compile 'com.github.buchandersenn:android-permission-manager:1.0.0'
-    }
+```gradle
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'com.github.buchandersenn:android-permission-manager:1.0.0'
+}
+```
 
 Or Maven:
 
-    <dependency>
-        <groupId>com.github.buchandersenn</groupId>
-        <artifactId>android-permission-manager</artifactId>
-        <version>1.0.0</version>
-    </dependency>
+```xml
+<dependency>
+    <groupId>com.github.buchandersenn</groupId>
+    <artifactId>android-permission-manager</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
 
 Alternatively, you can also clone the git repository and include the library in your 
 project manually.
@@ -82,34 +88,37 @@ instance.
 
 For activities:
 
-    public class MainActivity extends AppCompatActivity 
-        implements ActivityCompat.OnRequestPermissionsResultCallback {
+```java
+public class MainActivity extends AppCompatActivity 
+    implements ActivityCompat.OnRequestPermissionsResultCallback {
 
-        private final PermissionManager permissionManager = PermissionManager.create(this);
+    private final PermissionManager permissionManager = PermissionManager.create(this);
 
-        @Override
-        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-            permissionManager.handlePermissionResult(requestCode, grantResults);
-        }
-
-        ...
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permissionManager.handlePermissionResult(requestCode, grantResults);
     }
 
+    ...
+}
+```
 
 For fragments:
 
-    public class ContactRationaleFragment extends Fragment 
-        implements FragmentCompat.OnRequestPermissionsResultCallback {
-        
-        private final PermissionManager permissionManager = PermissionManager.create(this);
+```java
+public class ContactRationaleFragment extends Fragment 
+    implements FragmentCompat.OnRequestPermissionsResultCallback {
+    
+    private final PermissionManager permissionManager = PermissionManager.create(this);
 
-        @Override
-        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-            permissionManager.handlePermissionResult(requestCode, grantResults);
-        }
-
-        ...
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permissionManager.handlePermissionResult(requestCode, grantResults);
     }
+
+    ...
+}
+```
 
 NOTE: Please do NOT make the PermissionManager instance static, or you'll risk introducing memory 
 leaks in you activities.
@@ -118,24 +127,26 @@ leaks in you activities.
 
 A permission request is performed using a syntax inspired by Glide and similar libraries. 
 
-    // Start building a new request using the with() method. 
-    // The method takes either a single permission or a list of permissions.
-    // Specify multiple permissions in case you need to request both 
-    // read and write access to the contacts at the same time, for example.
-    permissionManager.with(...)
-            // Optionally, specify a request code value for the request
-            .usingRequestCode(REQUEST_CODE) 
-            
-            // Optionally, specify a callback handler for all three callbacks
-            .onCallback(new OnPermissionCallback() {...}) 
+```java
+// Start building a new request using the with() method. 
+// The method takes either a single permission or a list of permissions.
+// Specify multiple permissions in case you need to request both 
+// read and write access to the contacts at the same time, for example.
+permissionManager.with(...)
+        // Optionally, specify a request code value for the request
+        .usingRequestCode(REQUEST_CODE) 
+        
+        // Optionally, specify a callback handler for all three callbacks
+        .onCallback(new OnPermissionCallback() {...}) 
 
-            // OR specify handlers for each callback separately
-            .onPermissionGranted(new OnPermissionGrantedCallback() {...})
-            .onPermissionDenied(new OnPermissionDeniedCallback() {...})
-            .onPermissionShowRationale(new OnPermissionShowRationaleCallback() {...})
-            
-            // Finally, perform the request
-            .request();
+        // OR specify handlers for each callback separately
+        .onPermissionGranted(new OnPermissionGrantedCallback() {...})
+        .onPermissionDenied(new OnPermissionDeniedCallback() {...})
+        .onPermissionShowRationale(new OnPermissionShowRationaleCallback() {...})
+        
+        // Finally, perform the request
+        .request();
+```
 
 If the app already has the requested permission then the onPermissionGranted callback is invoked
 at once. Similarly, if the user has denied the permission and checked the 'never ask again option'
@@ -146,10 +157,12 @@ onPermissionGranted/onPermissionDenied callbacks called once the user has answer
 
 Alternatively, it is also possible to check for the permission 'silently':
 
-    permissionManager.with(...)
-            .onPermissionGranted(new OnPermissionGrantedCallback() {...})
-            .onPermissionDenied(new OnPermissionDeniedCallback() {...})
-            .check();
+```java
+permissionManager.with(...)
+        .onPermissionGranted(new OnPermissionGrantedCallback() {...})
+        .onPermissionDenied(new OnPermissionDeniedCallback() {...})
+        .check();
+```
 
 The check() method will not ask the user for permission if it is not already granted, 
 thus the onPermissionShowRationale callback is irrelevant. It will always perform the check and 
@@ -160,23 +173,25 @@ invoke either the onPermissionGranted or the onPermissionDenied callback at once
 The callbacks are simple single methods interfaces - with the exception of the aggregate 
 OnPermissionCallback interface:
 
-    public interface OnPermissionGrantedCallback {
-        void onPermissionGranted();
-    }
+```java
+public interface OnPermissionGrantedCallback {
+    void onPermissionGranted();
+}
 
-    public interface OnPermissionDeniedCallback {
-        void onPermissionDenied();
-    }
+public interface OnPermissionDeniedCallback {
+    void onPermissionDenied();
+}
 
-    public interface OnPermissionShowRationaleCallback {
-        void onPermissionShowRationale(PermissionRequest permissionRequest);
-    }
+public interface OnPermissionShowRationaleCallback {
+    void onPermissionShowRationale(PermissionRequest permissionRequest);
+}
 
-    public interface OnPermissionCallback extends 
-        OnPermissionGrantedCallback, 
-        OnPermissionDeniedCallback, 
-        OnPermissionShowRationaleCallback {
-    }
+public interface OnPermissionCallback extends 
+    OnPermissionGrantedCallback, 
+    OnPermissionDeniedCallback, 
+    OnPermissionShowRationaleCallback {
+}
+```
 
 When the onPermissionShowRationale callback is called, the app is expected to show some kind of 
 rationale to the user, perhaps in the form of a Snackbar. The rationale should include 
@@ -187,17 +202,19 @@ The PermissionRequest instance provided by the onPermissionShowRationale callbac
 single public method. This method lets the permission manager know that the user has accepted the 
 rationale. If the rationale is accepted then the permission manager automatically tries to request 
 the permission again. 
-           
-    void onPermissionShowRationale(PermissionRequest permissionRequest) {
-        ...
-        
-        okButton.OnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                permissionRequest.acceptPermissionRationale();
-            }
-        });
-    }
+
+```java           
+void onPermissionShowRationale(PermissionRequest permissionRequest) {
+    ...
+    
+    okButton.OnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            permissionRequest.acceptPermissionRationale();
+        }
+    });
+}
+```
 
 When the user answers the permission prompt, the onPermissionGranted or onPermissionDenied 
 callbacks are called, just as if the rationale had not been shown.
@@ -205,36 +222,40 @@ callbacks are called, just as if the rationale had not been shown.
 ## Common callbacks handlers
 
 Some callbacks handlers are common across a wide range of apps: launching a new activity 
-when a permission is granted, using a snackbar to show the permission rationale or
-showing a fragment if the permission request is denied.
+when a permission is granted, using a snackbar to show the permission rationale, 
+showing a fragment if the permission request is denied ect.
 
 To facilitate these common callback types the library contains a collection of common callback
 implementations in the class PermissionCallbacks. Each callback handler is wrapped in an 
 appropriately named factory method. By static importing these methods the code can 
 be streamlined further, as shown in the initial example:
 
-    import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.showPermissionDeniedSnackbar;
-    import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.showPermissionShowRationaleSnackbar;
-    import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.startPermissionGrantedActivity;
+```java
+import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.showPermissionDeniedSnackbar;
+import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.showPermissionShowRationaleSnackbar;
+import static com.github.buchandersenn.android_permission_manager.callbacks.PermissionCallbacks.startPermissionGrantedActivity;
 
-    ...
-    
-    permissionManager.with(Manifest.permission.CAMERA)
-            .onPermissionGranted(startPermissionGrantedActivity(this, new Intent(this, CameraPreviewActivity.class)))
-            .onPermissionDenied(showPermissionDeniedSnackbar(mLayout, "Camera permission request was denied.", "SETTINGS"))
-            .onPermissionShowRationale(showPermissionShowRationaleSnackbar(mLayout, "Camera access is required to display the camera preview.", "OK"))
-            .request();
+...
+
+permissionManager.with(Manifest.permission.CAMERA)
+        .onPermissionGranted(startPermissionGrantedActivity(this, new Intent(this, CameraPreviewActivity.class)))
+        .onPermissionDenied(showPermissionDeniedSnackbar(mLayout, "Camera permission request was denied.", "SETTINGS"))
+        .onPermissionShowRationale(showPermissionShowRationaleSnackbar(mLayout, "Camera access is required to display the camera preview.", "OK"))
+        .request();
+```
 
 It is even possible to chain callback handlers together using the doAll() callback handler 
 as a wrapper. Here's an example from the sample app:
 
-    permissionManager.with(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
-            .onPermissionGranted(showPermissionGrantedFragment(getFragmentManager(), R.id.fragment_container, new ContactResultFragment(), false))
-            .onPermissionShowRationale(showPermissionRationaleFragment(getFragmentManager(), R.id.fragment_container, new ContactRationaleFragment(), false))
-            .onPermissionDenied(doAll(
-                    setPermissionDeniedViewVisibility(contactsDeniedView, View.VISIBLE),
-                    setPermissionDeniedViewEnabled(contactsButton, false)))
-            .request();
+```java
+permissionManager.with(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
+        .onPermissionGranted(showPermissionGrantedFragment(getFragmentManager(), R.id.fragment_container, new ContactResultFragment(), false))
+        .onPermissionShowRationale(showPermissionRationaleFragment(getFragmentManager(), R.id.fragment_container, new ContactRationaleFragment(), false))
+        .onPermissionDenied(doAll(
+                setPermissionDeniedViewVisibility(contactsDeniedView, View.VISIBLE),
+                setPermissionDeniedViewEnabled(contactsButton, false)))
+        .request();
+```
 
 You are free to use the same technique to bundle your own callbacks in a similar 
 MyFavoriteCallbacks class, or to contact me if you think some important common callback handlers 
