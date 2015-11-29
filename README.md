@@ -23,8 +23,8 @@ is granted.
 
 Even stripped of JavaDoc and comments, the sample code still takes up approximately 100 lines 
 of code, almost all dealing with the single permission request. Take a look at the code here:
- 
-    https://github.com/googlesamples/android-RuntimePermissionsBasic/blob/master/Application/src/main/java/com/example/android/basicpermissions/MainActivity.java
+
+https://github.com/googlesamples/android-RuntimePermissionsBasic/blob/master/Application/src/main/java/com/example/android/basicpermissions/MainActivity.java
 
 This library reduces the complexity by handling the whole mundane and repetitive 
 check-permission/show-rationale/request-permission/evaluate-result/perform-operation flow 
