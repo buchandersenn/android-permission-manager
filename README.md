@@ -4,7 +4,7 @@ Android runtime permissions were introduced in Android 6.0 Marshmallow. They are
 a boon for Android users, but can be a pain for developers. 
 
 With runtime permissions, Android app developers can no longer assume that the app has permission
-to access the contacts, accounts, camera or any other permissions categorised as 'dangerous.'
+to access contacts, accounts, camera or any other permissions categorised as 'dangerous.'
 The app therefore need to check for permissions each time it wants to perform an operation that
 requires a permission, and to ask the user to grant the permission if the app does not already 
 posses it.
@@ -15,88 +15,21 @@ technicalities.
 
 ## Example
 
-Take a look at the following example from the RuntimePermissionsBasic sample:
+Google's RuntimePermissionsBasic sample illustrates how to ask permission to access the camera. 
+The sample project contains code for checking if the permission is already granted, 
+checking if the app should show a permission rationale, requesting the permission, evaluation 
+the result of the request and finally launching a camera preview activity if the permission 
+is granted.
 
-    private void showCameraPreview() {
-        // BEGIN_INCLUDE(startCamera)
-        // Check if the Camera permission has been granted
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED) {
-            // Permission is already available, start camera preview
-            Snackbar.make(mLayout,
-                    "Camera permission is available. Starting preview.",
-                    Snackbar.LENGTH_SHORT).show();
-            startCamera();
-        } else {
-            // Permission is missing and must be requested.
-            requestCameraPermission();
-        }
-        // END_INCLUDE(startCamera)
-    }
+Even stripped of JavaDoc and comments, the sample code still takes up approximately 100 lines 
+of code, almost all dealing with the single permission request. Take a look at the code here:
+ 
+    https://github.com/googlesamples/android-RuntimePermissionsBasic/blob/master/Application/src/main/java/com/example/android/basicpermissions/MainActivity.java
 
-    private void requestCameraPermission() {
-        // Permission has not been granted and must be requested.
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
-            // Provide an additional rationale to the user if the permission was not granted
-            // and the user would benefit from additional context for the use of the permission.
-            // Display a SnackBar with a button to request the missing permission.
-            Snackbar.make(mLayout, "Camera access is required to display the camera preview.",
-                    Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    // Request the permission
-                    ActivityCompat.requestPermissions(MainActivity.this,
-                            new String[]{Manifest.permission.CAMERA},
-                            PERMISSION_REQUEST_CAMERA);
-                }
-            }).show();
-
-        } else {
-            Snackbar.make(mLayout,
-                    "Permission is not available. Requesting camera permission.",
-                    Snackbar.LENGTH_SHORT).show();
-            // Request the permission. The result will be received in onRequestPermissionResult().
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
-                    PERMISSION_REQUEST_CAMERA);
-        }
-    }
-
-... and this is just for checking and requesting the permission. The app still need to deal with the
-result of the request and perform the actual intended operation if the request is granted:
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            int[] grantResults) {
-        // BEGIN_INCLUDE(onRequestPermissionsResult)
-        if (requestCode == PERMISSION_REQUEST_CAMERA) {
-            // Request for camera permission.
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission has been granted. Start camera preview Activity.
-                Snackbar.make(mLayout, "Camera permission was granted. Starting preview.",
-                        Snackbar.LENGTH_SHORT)
-                        .show();
-                startCamera();
-            } else {
-                // Permission request was denied.
-                Snackbar.make(mLayout, "Camera permission request was denied.",
-                        Snackbar.LENGTH_SHORT)
-                        .show();
-            }
-        }
-        // END_INCLUDE(onRequestPermissionsResult)
-    }
-
-    private void startCamera() {
-        Intent intent = new Intent(this, CameraPreviewActivity.class);
-        startActivity(intent);
-    }
-
-Phew!
-
-The library reduces the complexity by handling the whole mundane check-permission/show-rationale/
-request-permission/perform-operation flow behind the scenes. Using the PermissionManager 
-and some of the helper methods included in the library, you can replace all of the above 
-with the following few lines of code:
+This library reduces the complexity by handling the whole mundane and repetitive 
+check-permission/show-rationale/request-permission/evaluate-result/perform-operation flow 
+behind the scenes. Using the PermissionManager and some of the helper methods included 
+in the library, you can achieve all of the above with the following few lines of code:
 
     private final PermissionManager permissionManager = PermissionManager.create(this);
 
@@ -113,16 +46,35 @@ with the following few lines of code:
         permissionManager.handlePermissionResult(requestCode, grantResults);
     }
 
-# Download
-
-The library is not (yet) available in jCenter, so you'll need to clone the GIT repository and 
-include the library in your project manually.
+The library not only reduces the amount of code by about half, but also improves 
+the readability quite a bit.
 
 # Usage
 
-## Setup 
+## Dependencies
 
-A bit of setup is required before using the PermissionManager to handle permission requests. 
+The easiest way to add the required dependency is by using Gradle:
+
+    repositories {
+        jcenter()
+    }
+    
+    dependencies {
+        compile 'com.github.buchandersenn:android-permission-manager:1.0.0'
+    }
+
+Or Maven:
+
+    <dependency>
+        <groupId>com.github.buchandersenn</groupId>
+        <artifactId>android-permission-manager</artifactId>
+        <version>1.0.0</version>
+    </dependency>
+
+Alternatively, you can also clone the git repository and include the library in your 
+project manually.
+
+## Creating a PermissionManager
 
 Each Activity/Fragment need to implement the appropriate OnRequestPermissionsResultCallback 
 from the support library and delegate the onRequestPermissionsResult to a PermissionManager 
@@ -159,6 +111,9 @@ For fragments:
         ...
     }
 
+NOTE: Please do NOT make the PermissionManager instance static, or you'll risk introducing memory 
+leaks in you activities.
+
 ## Performing requests and handling callbacks
 
 A permission request is performed using a syntax inspired by Glide and similar libraries. 
@@ -189,16 +144,16 @@ invoked if the app should show a rationale before asking the user to grant the p
 If neither of these conditions are met, then the permissionManager requests the permission and the 
 onPermissionGranted/onPermissionDenied callbacks called once the user has answered.
 
-Alternatively, it is also possible to just check for the permission 'silently':
+Alternatively, it is also possible to check for the permission 'silently':
 
     permissionManager.with(...)
             .onPermissionGranted(new OnPermissionGrantedCallback() {...})
             .onPermissionDenied(new OnPermissionDeniedCallback() {...})
             .check();
 
-The check() method will not ask the user for permission if it is not available, thus the 
-onPermissionShowRationale callback is irrelevant. It will always invoke either the
-onPermissionGranted or the onPermissionDenied callback at once.
+The check() method will not ask the user for permission if it is not already granted, 
+thus the onPermissionShowRationale callback is irrelevant. It will always perform the check and 
+invoke either the onPermissionGranted or the onPermissionDenied callback at once.
 
 ## Callback interfaces
 

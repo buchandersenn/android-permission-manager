@@ -1,11 +1,8 @@
 package com.github.buchandersenn.android_permission_manager.demo;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -23,31 +20,6 @@ import com.github.buchandersenn.android_permission_manager.callbacks.OnPermissio
 import com.github.buchandersenn.android_permission_manager.demo.camera.CameraPreviewActivity;
 import com.github.buchandersenn.android_permission_manager.demo.contacts.ContactRequestFragment;
 
-/**
- *
- * TODO : Update description
- *
- * Launcher Activity that demonstrates the use of runtime permissions for Android M.
- * This Activity requests permissions to access the camera
- * ({@link android.Manifest.permission#CAMERA})
- * when the 'Show Camera Preview' button is clicked to start  {@link CameraPreviewActivity} once
- * the permission has been granted.
- * <p>
- * First, the status of the Camera permission is checked using {@link
- * ActivityCompat#checkSelfPermission(Context, String)}
- * If it has not been granted ({@link PackageManager#PERMISSION_GRANTED}), it is requested by
- * calling
- * {@link ActivityCompat#requestPermissions(Activity, String[], int)}. The result of the request is
- * returned to the
- * {@link android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback}, which starts
- * {@link
- * CameraPreviewActivity} if the permission has been granted.
- * <p>
- * Note that there is no need to check the API level, the support library
- * already takes care of this. Similar helper methods for permissions are also available in
- * ({@link ActivityCompat},
- * {@link android.support.v4.content.ContextCompat} and {@link android.support.v4.app.Fragment}).
- */
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final int PERMISSION_REQUEST_CAMERA = 0;
@@ -71,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
         });
 
-        // Setup the contact fragment..
+        // Setup the contact fragment...
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.fragment_container, new ContactRequestFragment());
         fragmentTransaction.commit();
@@ -87,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_reset) {
-            //this.recreate();
             finish();
             startActivity(getIntent());
             return true;
@@ -98,15 +69,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        //boolean handled = permissionManager.handlePermissionResult(requestCode, permissions, grantResults);
-        //if (!handled) {
-        //    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //}
-
         permissionManager.handlePermissionResult(requestCode, grantResults);
     }
 
     private void showCameraPreview() {
+        // Handling the callbacks using the helper methods in the library...
+        // permissionManager.with(Manifest.permission.CAMERA)
+        //         .onPermissionGranted(startPermissionGrantedActivity(this, new Intent(this, CameraPreviewActivity.class)))
+        //         .onPermissionDenied(showPermissionDeniedSnackbar(mLayout, "Camera permission request was denied.", "SETTINGS"))
+        //         .onPermissionShowRationale(showPermissionShowRationaleSnackbar(mLayout, "Camera access is required to display the camera preview.", "OK"))
+        //         .request();
+
+        // Handling all three callbacks using a single custom handler...
         permissionManager.with(Manifest.permission.CAMERA)
                 .usingRequestCode(PERMISSION_REQUEST_CAMERA)
                 .onCallback(new CameraPermissionCallback())

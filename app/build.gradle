@@ -1,9 +1,5 @@
 apply plugin: 'com.android.application'
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     compile project(":library")
     compile libraries.support_annotations
