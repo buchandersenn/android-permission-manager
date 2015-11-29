@@ -27,13 +27,13 @@ android {
     }
 }
 
-def artifact = 'android-permission-manager'
-def description = 'Android library for managing runtime permission'
+def artifactName = 'android-permission-manager'
+def artifactDescription = 'Android library for managing runtime permission'
 def siteUrl = 'https://github.com/buchandersenn/android-permission-manager'      // Homepage URL of the library
 def gitUrl = 'https://github.com/buchandersenn/android-permission-manager.git'   // Git repository URL
 
 group = "com.github.buchandersenn"                                               // Maven Group ID for the artifact
-version = "1.0.0"
+version = versions.versionName
 
 install {
     repositories.mavenInstaller {
@@ -43,8 +43,9 @@ install {
                 packaging 'aar'
 
                 // Add your description here
-                artifactId artifact
-                name description
+                artifactId artifactName
+                name artifactName
+                description artifactDescription
                 url siteUrl
 
                 // Set your license
@@ -104,7 +105,8 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = 'maven'
-        name = artifact
+        name = artifactName
+        desc = artifactDescription
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ['Apache-2.0']

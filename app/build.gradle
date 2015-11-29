@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile project(":library")
+    compile project(":android-permission-manager")
     compile libraries.support_annotations
     compile libraries.support_appcompat
     compile libraries.support_design

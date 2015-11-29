@@ -1,2 +1,4 @@
 include ':library'
 include ':app'
+
+project(":library").name = "android-permission-manager"
