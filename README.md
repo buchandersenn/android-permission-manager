@@ -13,7 +13,7 @@ This is somewhat cumbersome and requires a great deal of boilerplate code. The l
 this, allowing the developer to focus on the actual app functionality instead of Android 
 technicalities.
 
-## Example
+### Example
 
 Google's RuntimePermissionsBasic sample illustrates how to ask permission to access the camera. 
 The sample project contains code for checking if the permission is already granted, 
@@ -51,9 +51,7 @@ public void onRequestPermissionsResult(int requestCode, @NonNull String[] permis
 The library not only reduces the amount of code by about half, but also improves 
 the readability quite a bit.
 
-# Usage
-
-## Dependencies
+## Usage
 
 The easiest way to add the required dependency is by using Gradle:
 
@@ -80,7 +78,7 @@ Or Maven:
 Alternatively, you can also clone the git repository and include the library in your 
 project manually.
 
-## Creating a PermissionManager
+### Creating a PermissionManager
 
 Each Activity/Fragment need to implement the appropriate OnRequestPermissionsResultCallback 
 from the support library and delegate the onRequestPermissionsResult to a PermissionManager 
@@ -123,7 +121,7 @@ public class ContactRationaleFragment extends Fragment
 NOTE: Please do NOT make the PermissionManager instance static, or you'll risk introducing memory 
 leaks in you activities.
 
-## Performing requests and handling callbacks
+### Performing requests and handling callbacks
 
 A permission request is performed using a syntax inspired by Glide and similar libraries. 
 
@@ -168,7 +166,7 @@ The check() method will not ask the user for permission if it is not already gra
 thus the onPermissionShowRationale callback is irrelevant. It will always perform the check and 
 invoke either the onPermissionGranted or the onPermissionDenied callback at once.
 
-## Callback interfaces
+### Callback interfaces
 
 The callbacks are simple single methods interfaces - with the exception of the aggregate 
 OnPermissionCallback interface:
@@ -219,7 +217,7 @@ void onPermissionShowRationale(PermissionRequest permissionRequest) {
 When the user answers the permission prompt, the onPermissionGranted or onPermissionDenied 
 callbacks are called, just as if the rationale had not been shown.
 
-## Common callbacks handlers
+### Common callbacks handlers
 
 Some callbacks handlers are common across a wide range of apps: launching a new activity 
 when a permission is granted, using a snackbar to show the permission rationale, 
@@ -261,13 +259,13 @@ You are free to use the same technique to bundle your own callbacks in a similar
 MyFavoriteCallbacks class, or to contact me if you think some important common callback handlers 
 are missing from the library.
 
-# Author
+## Author
 
 Nicolai Buch-Andersen<br/>
 Google+ <https://google.com/+NicolaiBuchAndersen><br/>
 Email: <nicolai.buch.andersen@gmail.com><br/>
 
-# License
+## License
 
     Copyright 2015 Nicolai Buch-Andersen
 
