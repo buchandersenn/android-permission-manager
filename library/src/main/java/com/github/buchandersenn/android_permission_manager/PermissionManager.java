@@ -31,12 +31,14 @@ public abstract class PermissionManager {
 
     public boolean handlePermissionResult(int requestCode, @NonNull int[] grantResults) {
         PermissionRequest request = requests.get(requestCode);
+        unregisterCallbacks(requestCode);
+
+        // If no request callbacks could be found then return false...
         if (request == null) {
             return false;
         }
 
-        requests.delete(requestCode);
-
+        // Else execute the appropriate callback...
         if (PermissionUtil.verifyPermissionResults(grantResults)) {
             request.fireOnPermissionGrantedCallback();
         } else {
@@ -68,9 +70,25 @@ public abstract class PermissionManager {
     }
 
     protected void requestPermission(PermissionRequest permissionRequest) {
+        int requestCode = registerCallbacks(permissionRequest);
+        requestPermission(requestCode, permissionRequest.getPermissions());
+    }
+
+    protected abstract void requestPermission(int requestCode, String[] permissions);
+    protected abstract boolean checkPermissions(String[] permissions);
+    protected abstract boolean shouldShowPermissionRationale(String[] permissions);
+
+    private void unregisterCallbacks(int requestCode) {
+        requests.delete(requestCode);
+    }
+
+    private int registerCallbacks(PermissionRequest permissionRequest) {
         // Register the request with the PermissionManager before requesting the permission(s).
-        // The request map is used by PermissionManager.handlePermissionResult()
-        // once the user replies to the request...
+        // The requests map is used by PermissionManager.handlePermissionResult() to act
+        // on the permission result, once the user replies to the request.
+        // If the activity/fragment is destroyed before the result arrives
+        // then the requests map is lost and the library will instead try to
+        // restore the callbacks from one of the static callback maps...
         int requestCode;
         synchronized (requestCodeLock) {
             // If no request code was supplied by the PermissionRequestBuilder then
@@ -87,12 +105,8 @@ public abstract class PermissionManager {
             }
         }
 
-        requestPermission(requestCode, permissionRequest.getPermissions());
+        return requestCode;
     }
-
-    protected abstract void requestPermission(int requestCode, String[] permissions);
-    protected abstract boolean checkPermissions(String[] permissions);
-    protected abstract boolean shouldShowPermissionRationale(String[] permissions);
 
     /**
      * The requestCode must be between 0 and 255. This method calculates a new request code by

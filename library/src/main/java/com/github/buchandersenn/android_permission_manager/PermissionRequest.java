@@ -8,11 +8,13 @@ import com.github.buchandersenn.android_permission_manager.callbacks.OnPermissio
 
 public class PermissionRequest {
     private final @NonNull PermissionManager permissionManager;
+
     private final @NonNull String[] permissions;
     private final int requestCode;
-    private final OnPermissionGrantedCallback grantedCallback;
-    private final OnPermissionDeniedCallback deniedCallback;
-    private final OnPermissionShowRationaleCallback showRationaleCallback;
+
+    protected final OnPermissionGrantedCallback grantedCallback;
+    protected final OnPermissionDeniedCallback deniedCallback;
+    protected final OnPermissionShowRationaleCallback showRationaleCallback;
 
     public PermissionRequest(@NonNull PermissionManager permissionManager, @NonNull String[] permissions, int requestCode, OnPermissionGrantedCallback grantedCallback, OnPermissionDeniedCallback deniedCallback, OnPermissionShowRationaleCallback showRationaleCallback) {
         this.permissionManager = permissionManager;
