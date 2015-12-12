@@ -259,6 +259,52 @@ You are free to use the same technique to bundle your own callbacks in a similar
 MyFavoriteCallbacks class, or to contact me if you think some important common callback handlers 
 are missing from the library.
 
+### Known issues and limitations
+
+In order to avoid memory leaks, the callbacks (OnPermissionGranted/OnPermissionDenied/
+OnPermissionShowRationale) aren't kept in memory during configuration changes or when
+Android kills an activity to claim its memory. The callbacks are destroyed with the activity.
+
+Therefore, if for example a user presses the 'show camera' button in the sample app - and then 
+rotates the device while the permission prompt is visible - the permission callbacks are lost
+when the activity is recreated and before onRequestPermissionsResult is called.
+
+There are a couple of ways to deal with this limitation:
+
+* Ignore it. The situation will probably arise rather seldom, and if the permission request
+is invoked as a result of a button press, then the user only need to press the button again.
+On the second button press, the permission will either already be granted, in which case the 
+OnPermissionGranted will fire at once, or the permission will be denied and the 
+OnPermissionShowRationale callback is likely to be invoked. 
+
+* Handle the onRequestPermissionsResult yourself. If the 
+permissionManager.handlePermissionResult(...) method returns falls then the library failed to 
+find a callback for the permission result. You might at this point use the check() method
+to ensure that the proper callback is still invoked. For example:
+
+```java
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        boolean handled = permissionManager.handlePermissionResult(requestCode, grantResults);
+        if (handled) {
+            return;
+        }
+
+        switch (requestCode) {
+            case MY_REQUEST_CODE:
+                permissionManager.with(...)
+                        .onPermissionGranted(new OnPermissionGrantedCallback() {...})
+                        .onPermissionDenied(new OnPermissionDeniedCallback() {...})
+                        .check();
+                 break;
+            case MY_OTHER_REQUEST_CODE:
+                ...
+                break;
+        }
+    }
+```
+
+
 ## Author
 
 Nicolai Buch-Andersen<br/>
