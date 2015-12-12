@@ -277,12 +277,23 @@ On the second button press, the permission will either already be granted, in wh
 OnPermissionGranted will fire at once, or the permission will be denied and the 
 OnPermissionShowRationale callback is likely to be invoked. 
 
-* Handle the onRequestPermissionsResult yourself. If the 
-permissionManager.handlePermissionResult(...) method returns falls then the library failed to 
+* Handle onRequestPermissionsResult yourself. If the 
+permissionManager.handlePermissionResult(...) method returns false then the library failed to 
 find a callback for the permission result. You might at this point use the check() method
-to ensure that the proper callback is still invoked. For example:
+to ensure that the proper callback is still invoked. This, unfortunately, involves a bit of  
+code duplication and for you to set the request codes by calling usingRequestCode(...) when
+requesting a permission. For example:
 
 ```java
+    permissionManager.with(Manifest.permission.CAMERA)
+        .usingRequestCode(MY_REQUEST_CODE) 
+        .onPermissionGranted(startPermissionGrantedActivity(this, new Intent(this, CameraPreviewActivity.class)))
+        .onPermissionDenied(showPermissionDeniedSnackbar(mLayout, "Camera permission request was denied.", "SETTINGS"))
+        .onPermissionShowRationale(showPermissionShowRationaleSnackbar(mLayout, "Camera access is required to display the camera preview.", "OK"))
+        .request();
+
+    ...
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         boolean handled = permissionManager.handlePermissionResult(requestCode, grantResults);
@@ -292,10 +303,10 @@ to ensure that the proper callback is still invoked. For example:
 
         switch (requestCode) {
             case MY_REQUEST_CODE:
-                permissionManager.with(...)
-                        .onPermissionGranted(new OnPermissionGrantedCallback() {...})
-                        .onPermissionDenied(new OnPermissionDeniedCallback() {...})
-                        .check();
+                permissionManager.with(Manifest.permission.CAMERA)
+                    .onPermissionGranted(startPermissionGrantedActivity(this, new Intent(this, CameraPreviewActivity.class)))
+                    .onPermissionDenied(showPermissionDeniedSnackbar(mLayout, "Camera permission request was denied.", "SETTINGS"))
+                    .check();
                  break;
             case MY_OTHER_REQUEST_CODE:
                 ...
