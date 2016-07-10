@@ -44,9 +44,9 @@ public class PermissionRequest {
         }
     }
 
-    protected void fireOnPermissionDeniedCallback() {
+    protected void fireOnPermissionDeniedCallback(boolean neverAskAgain) {
         if (deniedCallback != null) {
-            deniedCallback.onPermissionDenied();
+            deniedCallback.onPermissionDenied(neverAskAgain);
         }
     }
 

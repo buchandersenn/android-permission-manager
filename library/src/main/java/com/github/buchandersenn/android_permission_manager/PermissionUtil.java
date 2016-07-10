@@ -50,6 +50,19 @@ public class PermissionUtil {
     }
 
     /**
+     * Check if at least one of the given permissions should show a permission rationale.
+     */
+    static boolean shouldShowPermissionRationale(android.support.v4.app.Fragment fragment, @NonNull String[] permissions) {
+        for (String permission : permissions) {
+            if (fragment.shouldShowRequestPermissionRationale(permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Check that all given permissions have been granted by verifying that each entry in the
      * given array is of the value {@link PackageManager#PERMISSION_GRANTED}.
      *

@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
 
         @Override
-        public void onPermissionDenied() {
+        public void onPermissionDenied(boolean neverAskAgain) {
             Snackbar.make(mLayout, "Camera permission request was denied.", Snackbar.LENGTH_SHORT).show();
         }
 
