@@ -21,6 +21,10 @@ public abstract class PermissionManager {
         return new FragmentPermissionManager(fragment);
     }
 
+    public static PermissionManager create(android.support.v4.app.Fragment fragment) {
+        return new SupportFragmentPermissionManager(fragment);
+    }
+
     public PermissionRequestBuilder with(@NonNull String... permissions) {
         if (permissions.length < 1) {
             throw new IllegalArgumentException("PermissionManager.with(String... permissions) must be called with at least one permission");
@@ -169,4 +173,28 @@ public abstract class PermissionManager {
             return PermissionUtil.shouldShowPermissionRationale(fragment, permissions);
         }
     }
+
+    private static class SupportFragmentPermissionManager extends PermissionManager {
+        private final @NonNull android.support.v4.app.Fragment fragment;
+
+        public SupportFragmentPermissionManager(@NonNull android.support.v4.app.Fragment fragment) {
+            this.fragment = fragment;
+        }
+
+        @Override
+        protected void requestPermission(int requestCode, String[] permissions) {
+            fragment.requestPermissions(permissions, requestCode);
+        }
+
+        @Override
+        protected boolean checkPermissions(String[] permissions) {
+            return PermissionUtil.checkPermissions(fragment.getActivity(), permissions);
+        }
+
+        @Override
+        protected boolean shouldShowPermissionRationale(String[] permissions) {
+            return PermissionUtil.shouldShowPermissionRationale(fragment, permissions);
+        }
+    }
+
 }
