@@ -73,9 +73,9 @@ public class PermissionCallbacks {
     public static OnPermissionDeniedCallback doAll(final OnPermissionDeniedCallback... deniedCallbacks) {
         return new OnPermissionDeniedCallback() {
             @Override
-            public void onPermissionDenied() {
+            public void onPermissionDenied(boolean neverAskAgain) {
                 for (OnPermissionDeniedCallback callback : deniedCallbacks) {
-                    callback.onPermissionDenied();
+                    callback.onPermissionDenied(neverAskAgain);
                 }
             }
         };
@@ -84,7 +84,7 @@ public class PermissionCallbacks {
     public static OnPermissionDeniedCallback setPermissionDeniedViewVisibility(@NonNull final View view, final int visibility) {
         return new OnPermissionDeniedCallback() {
             @Override
-            public void onPermissionDenied() {
+            public void onPermissionDenied(boolean neverAskAgain) {
                 view.setVisibility(visibility);
             }
         };
@@ -93,7 +93,7 @@ public class PermissionCallbacks {
     public static OnPermissionDeniedCallback setPermissionDeniedViewEnabled(@NonNull final View view, final boolean enabled) {
         return new OnPermissionDeniedCallback() {
             @Override
-            public void onPermissionDenied() {
+            public void onPermissionDenied(boolean neverAskAgain) {
                 view.setEnabled(enabled);
             }
         };
@@ -102,10 +102,11 @@ public class PermissionCallbacks {
     public static OnPermissionDeniedCallback showPermissionDeniedSnackbar(@NonNull final View view, final CharSequence text, final CharSequence buttonText) {
         return new OnPermissionDeniedCallback() {
             @Override
-            public void onPermissionDenied() {
-                Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(buttonText, new SettingsButtonClickListener())
-                        .show();
+            public void onPermissionDenied(boolean neverAskAgain) {
+                Snackbar snackbar = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE);
+                if (neverAskAgain) snackbar.setAction(buttonText, new SettingsButtonClickListener());
+
+                snackbar.show();
             }
         };
     }
@@ -113,10 +114,11 @@ public class PermissionCallbacks {
     public static OnPermissionDeniedCallback showPermissionDeniedSnackbar(@NonNull final View view, @StringRes final int textResId, @StringRes final int buttonTextResId) {
         return new OnPermissionDeniedCallback() {
             @Override
-            public void onPermissionDenied() {
-                Snackbar.make(view, textResId, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(buttonTextResId, new SettingsButtonClickListener())
-                        .show();
+            public void onPermissionDenied(boolean neverAskAgain) {
+                Snackbar snackbar = Snackbar.make(view, textResId, Snackbar.LENGTH_INDEFINITE);
+                if (neverAskAgain) snackbar.setAction(buttonTextResId, new SettingsButtonClickListener());
+
+                snackbar.show();
             }
         };
     }
@@ -124,7 +126,7 @@ public class PermissionCallbacks {
     public static  OnPermissionDeniedCallback showPermissionDeniedFragment(final FragmentManager fragmentManager, @IdRes final int viewId, final Fragment fragment, final boolean addToBackStack) {
         return new OnPermissionDeniedCallback() {
             @Override
-            public void onPermissionDenied() {
+            public void onPermissionDenied(boolean neverAskAgain) {
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 fragmentTransaction.replace(viewId, fragment);
@@ -139,7 +141,7 @@ public class PermissionCallbacks {
     public static  OnPermissionDeniedCallback startPermissionDeniedActivity(final Context context, final Intent activityIntent) {
         return new OnPermissionDeniedCallback() {
             @Override
-            public void onPermissionDenied() {
+            public void onPermissionDenied(boolean neverAskAgain) {
                 context.startActivity(activityIntent);
             }
         };

@@ -46,7 +46,8 @@ public abstract class PermissionManager {
         if (PermissionUtil.verifyPermissionResults(grantResults)) {
             request.fireOnPermissionGrantedCallback();
         } else {
-            request.fireOnPermissionDeniedCallback();
+            boolean canShowRationale = shouldShowPermissionRationale(request.getPermissions());
+            request.fireOnPermissionDeniedCallback(!canShowRationale);
         }
 
         return true;
@@ -56,7 +57,8 @@ public abstract class PermissionManager {
         if (checkPermissions(permissionRequest.getPermissions())) {
             permissionRequest.fireOnPermissionGrantedCallback();
         } else {
-            permissionRequest.fireOnPermissionDeniedCallback();
+            boolean canShowRationale = shouldShowPermissionRationale(permissionRequest.getPermissions());
+            permissionRequest.fireOnPermissionDeniedCallback(!canShowRationale);
         }
     }
 
